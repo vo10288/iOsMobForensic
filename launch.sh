@@ -52,7 +52,7 @@ echo -e "${GREEN}[OK]${NC} tkinter disponibile"
 # Controlla libimobiledevice
 TOOLS_OK=0
 TOOLS_MISSING=0
-for tool in idevice_id ideviceinfo idevicebackup2 idevicescreenshot; do
+for tool in idevice_id ideviceinfo idevicebackup2 idevicescreenshot idevicesyslog ideviceinstaller idevicepair; do
     if command -v "$tool" &>/dev/null; then
         ((TOOLS_OK++))
     else
@@ -84,6 +84,18 @@ if command -v ffmpeg &>/dev/null; then
     echo -e "${GREEN}[OK]${NC} ffmpeg disponibile (screen recording video)"
 else
     echo -e "${YELLOW}[WARN]${NC} ffmpeg non trovato (video screen recording disabilitato)"
+fi
+
+# Controlla ifuse (AFC)
+if command -v ifuse &>/dev/null; then
+    echo -e "${GREEN}[OK]${NC} ifuse disponibile (accesso file AFC)"
+else
+    echo -e "${YELLOW}[WARN]${NC} ifuse non trovato (accesso file AFC disabilitato)"
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "       Installa con: sudo apt install ifuse"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "       Installa con: brew install ifuse && brew install --cask macfuse"
+    fi
 fi
 
 # Controlla usbmuxd (Linux)
