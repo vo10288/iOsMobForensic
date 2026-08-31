@@ -1,0 +1,182 @@
+# ══════════════════════════════════════════════════════════════════════
+#  iOS Forensic Acquisition Tool — Dipendenze
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ══════════════════════════════════════════════════════════════════════
+#
+#  DIPENDENZE PYTHON: NESSUNA.
+#
+#  Il package `iosforensic` usa esclusivamente la libreria standard di
+#  Python 3.9+ (tkinter, hashlib, subprocess, pathlib, json, re, threading).
+#  È una scelta di progetto: mantiene separate le licenze delle dipendenze
+#  e rende l'installazione su una distribuzione forense immediata.
+#
+#  `pip install -r requirements.txt` non installerà quindi nulla.
+#
+#  Le vere dipendenze sono PROGRAMMI ESTERNI, invocati come processi
+#  separati. Vanno installati con il gestore di pacchetti del sistema,
+#  seguendo le istruzioni qui sotto.
+#
+#  Verifica finale, sempre da eseguire prima di collegare il dispositivo:
+#
+#      iosforensic doctor
+#
+# ══════════════════════════════════════════════════════════════════════
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  TSURUGI LINUX / DEBIAN / UBUNTU
+# ──────────────────────────────────────────────────────────────────────
+#
+#  Obbligatorie:
+#
+#      sudo apt update
+#      sudo apt install -y libimobiledevice-utils ideviceinstaller \
+#                          usbmuxd python3-tk
+#
+#  Opzionali:
+#
+#      sudo apt install -y ifuse     # accesso file via AFC
+#      sudo apt install -y ffmpeg    # assemblaggio video dello screen recording
+#
+#  Avvio del servizio di multiplexing USB:
+#
+#      sudo systemctl enable --now usbmuxd
+#      systemctl status usbmuxd
+#
+#  Accesso al dispositivo senza sudo: aggiungi l'utente al gruppo
+#  che possiede i nodi USB (su Debian di norma `plugdev`).
+#
+#      sudo usermod -aG plugdev "$USER"
+#
+#  Il cambio di gruppo ha effetto solo dopo un nuovo login: se dopo il
+#  comando `idevice_id -l` continua a non vedere il dispositivo, esci e
+#  rientra dalla sessione prima di cercare altrove il problema.
+#
+#  NOTA SU TSURUGI: la distribuzione monta i dispositivi in sola lettura
+#  per impostazione predefinita, il che è corretto in ambito forense e non
+#  interferisce con libimobiledevice, che non usa il montaggio a blocchi.
+#  Se hai attivato un write blocker software, verifica che non intercetti
+#  anche il traffico usbmuxd.
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  macOS — INTEL
+# ──────────────────────────────────────────────────────────────────────
+#
+#  Homebrew su Intel installa in /usr/local.
+#
+#      brew install libimobiledevice ideviceinstaller python-tk
+#      brew install ifuse ffmpeg              # opzionali
+#      brew install --cask macfuse            # richiesto da ifuse
+#
+#  Verifica che /usr/local/bin sia nel PATH:
+#
+#      echo $PATH | tr ':' '\n' | grep /usr/local/bin
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  macOS — APPLE SILICON (M1, M2, M3, M4)
+# ──────────────────────────────────────────────────────────────────────
+#
+#  Homebrew su Apple Silicon installa in /opt/homebrew, NON in /usr/local.
+#  È la causa più frequente di "comando non trovato" dopo un'installazione
+#  andata a buon fine: il binario c'è, ma la shell non lo cerca lì.
+#
+#      brew install libimobiledevice ideviceinstaller python-tk
+#      brew install ffmpeg                    # opzionale
+#
+#  Se la shell non trova i comandi, aggiungi Homebrew al PATH:
+#
+#      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+#      source ~/.zprofile
+#
+#  Verifica quale prefisso stai usando:
+#
+#      brew --prefix        # atteso: /opt/homebrew
+#      which ideviceinfo    # atteso: /opt/homebrew/bin/ideviceinfo
+#
+#  Se hai migrato da un Mac Intel con Migrazione Assistita, potresti avere
+#  entrambe le installazioni. In quel caso `which` mostra quale vince, e
+#  conviene disinstallare quella in /usr/local per evitare di eseguire
+#  binari x86_64 sotto Rosetta senza accorgersene.
+#
+#  ── ifuse e macFUSE su Apple Silicon ──
+#
+#  macFUSE installa un'estensione del kernel. Su Apple Silicon le kext di
+#  terze parti richiedono l'abbassamento della politica di sicurezza di
+#  avvio, cosa che NON si fa dal sistema in esecuzione:
+#
+#      1. brew install --cask macfuse
+#      2. Spegni il Mac completamente.
+#      3. Tieni premuto il tasto di accensione fino a "Caricamento opzioni
+#         di avvio", poi scegli Opzioni → Continua.
+#      4. Utility → Utility Sicurezza Avvio → seleziona il disco →
+#         Criterio di sicurezza → "Sicurezza ridotta", e spunta
+#         "Consenti la gestione utente delle estensioni kernel".
+#      5. Riavvia, poi Impostazioni di Sistema → Generali → Login e
+#         estensioni → Estensioni di sistema: approva quella di Benjamin
+#         Fleischer (macFUSE).
+#      6. Riavvia di nuovo. Solo ora `brew install ifuse` è utile.
+#
+#  Valuta se ti serve davvero. Ridurre la sicurezza di avvio su una
+#  workstation forense è una modifica sostanziale della piattaforma, e va
+#  annotata a verbale: chi contesta l'acquisizione può legittimamente
+#  chiedere in che stato fosse la macchina che l'ha eseguita.
+#
+#  L'alternativa è saltare AFC: il backup completo (`iosforensic backup`)
+#  contiene i media della cartella DCIM e molto altro, e non richiede
+#  ifuse né macFUSE. AFC serve quando vuoi i file media SENZA fare un
+#  backup completo, o i Documents di una singola app.
+#
+#  ── tkinter su macOS ──
+#
+#  Il Python di sistema di Apple non include tkinter funzionante. Se la GUI
+#  non parte, usa il Python di Homebrew:
+#
+#      brew install python-tk
+#      python3 -c "import tkinter; print(tkinter.TkVersion)"
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  INSTALLAZIONE DEL TOOL
+# ──────────────────────────────────────────────────────────────────────
+#
+#      git clone https://github.com/vo10288/iOsMobForensic.git
+#      cd iOsMobForensic
+#      python3 -m pip install -e .
+#
+#  Oppure senza installare, dalla cartella del repository:
+#
+#      python3 -m iosforensic --help
+#
+#  Sviluppo (pytest + ruff): vedi requirements-dev.txt oppure
+#
+#      python3 -m pip install -e ".[dev]"
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  RIEPILOGO DEGLI STRUMENTI ESTERNI
+# ──────────────────────────────────────────────────────────────────────
+#
+#  Obbligatori:
+#    idevice_id            elenco dei dispositivi collegati
+#    idevicepair           gestione del pairing
+#    ideviceinfo           informazioni sul dispositivo
+#    idevicebackup2        acquisizione del backup
+#
+#  Opzionali:
+#    idevicename           nome del dispositivo
+#    ideviceinstaller      inventario delle applicazioni
+#    idevicescreenshot     cattura schermo
+#    idevicesyslog         cattura del log di sistema
+#    idevicecrashreport    estrazione dei crash report
+#    idevicediagnostics    informazioni diagnostiche
+#    idevicedate           data e ora del dispositivo
+#    ideviceprovision      profili di provisioning
+#    ideviceactivation     stato di attivazione
+#    ifuse                 mount AFC del filesystem media
+#    ffmpeg                assemblaggio dei frame in video
+#
+#  Le licenze di questi programmi sono riepilogate in
+#  THIRD_PARTY_NOTICES.md. Sono processi separati, non collegati a questo
+#  codice: le loro licenze non si propagano al progetto.

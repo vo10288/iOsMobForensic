@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Strumenti di sviluppo per iOS Forensic Acquisition Tool.
+# Non servono per usare il tool, solo per contribuirvi.
+#
+#     python3 -m pip install -r requirements-dev.txt
+#
+# Equivalente a `pip install -e ".[dev]"`, che le legge da pyproject.toml.
+#
+# Uso:
+#     python3 -m pytest -q        # esegue i test
+#     python3 -m ruff check .     # lint
+#     python3 -m ruff check --fix .
+
+pytest>=7.0
+ruff>=0.4
