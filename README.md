@@ -175,6 +175,7 @@ python3 ios_forensic_acquisition.py
 
 ## Licenza
 
-Creative Commons CC0 1.0 Universal - Software libero per uso forense e investigativo.
+GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007 - Software libero per uso forense e investigativo.
 
 *Tool sviluppato per integrazione con **Tsurugi Linux 2026** Digital Forensics Distribution.*
